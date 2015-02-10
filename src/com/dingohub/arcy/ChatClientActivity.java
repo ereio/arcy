@@ -169,19 +169,26 @@ public class ChatClientActivity extends Activity{
 	
 	@Override
     protected void onStart(){
-		
+		super.onStart();
 	}
 
 	@Override
-    protected void onRestart(){}
+    protected void onRestart(){
+		super.onRestart();
+	}
 
 	@Override
-    protected void onResume(){}
+    protected void onResume(){
+		super.onResume();
+	}
 
 	@Override
-    protected void onPause(){}
+    protected void onPause(){
+		super.onPause();
+	}
 
 	@Override
-    protected void onStop(){}
-
+    protected void onStop(){
+		super.onStop();
+	}
 }
