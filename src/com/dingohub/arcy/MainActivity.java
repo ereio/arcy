@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,10 +37,14 @@ public class MainActivity extends ActionBarActivity {
 	private String TEST_FILE = "text.txt";
 	private String DIR_PATH;
 	
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		
 		
 		bClient = (Button) findViewById(R.id.button_clientinit);
 		bServer = (Button) findViewById(R.id.button_serverinit);
@@ -122,6 +127,7 @@ public class MainActivity extends ActionBarActivity {
 		
 	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
