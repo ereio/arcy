@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dingohub.arcy.tools.ServerUtility;
 import com.dingohub.arcy.tools.SocketUtil;
 
 public class ServerSetupActivity extends Activity{
@@ -86,7 +87,8 @@ public class ServerSetupActivity extends Activity{
 		
 		// Obtain a Runnable to be used for server socket initialization 
 		// and communication
-		Runnable serverRunnable = SocketUtil.getServerRunnable(this, port);
+		//Runnable serverRunnable = SocketUtil.getServerRunnable(this, port);
+		Runnable serverRunnable = ServerUtility.getServerRunnable(this, port);
 		
 		// Execute the server runnable
 		Thread serverThread = new Thread(serverRunnable);
@@ -97,7 +99,8 @@ public class ServerSetupActivity extends Activity{
 	 * Shut down the server
 	 */
 	private void stopServer() {
-		SocketUtil.shutDownServer();
+		//SocketUtil.shutDownServer();
+		ServerUtility.shutDownServer();
 	}
 	
 	/**

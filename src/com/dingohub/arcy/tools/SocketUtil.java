@@ -20,6 +20,7 @@ import org.apache.http.conn.util.InetAddressUtils;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dingohub.arcy.ChatClientActivity;
 import com.dingohub.arcy.ServerSetupActivity;
@@ -42,7 +43,7 @@ public class SocketUtil {
 	 * @return The IPv4 Address of the network interface
 	 */
 	public static String getIPv4Address() {
-		String address = "";
+		String address = null;
 	
 		try {
 			// Obtain a collection of Network Interfaces available on the 
@@ -338,8 +339,11 @@ public class SocketUtil {
 			
 					// The client was unable to connect to the server, you 
 					// may want to notify the Activity accordingly
-					if (clientSocket == null)
+					if (clientSocket == null){
+						Toast.makeText(appContext, "Unable to connect to specified IRC", Toast.LENGTH_LONG).show();
 						return;
+					}
+						
 					
 					// Obtain an OutputStream to write data to the server
 					OutputStreamWriter outputWriter = 
@@ -391,4 +395,5 @@ public class SocketUtil {
 		ServerSetupActivity activity = (ServerSetupActivity) appContext;
 		activity.LogMessage(message);
 	}
+	
 }
