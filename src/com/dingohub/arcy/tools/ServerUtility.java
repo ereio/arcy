@@ -3,13 +3,14 @@ package com.dingohub.arcy.tools;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
-
-import com.dingohub.arcy.ServerSetupActivity;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.dingohub.arcy.ServerSetupActivity;
 
 public class ServerUtility{
 	static final String TAG = "ServerThreadHandler";
@@ -54,7 +55,6 @@ public class ServerUtility{
 		
 		clientList = new ArrayList<ServerThread>();
 		
-		initServerSocket(currentPort);
 		LogServerMessage("Server initalization success: Port" + currentPort);
 		
 		if(userMOTD != null)
@@ -67,25 +67,30 @@ public class ServerUtility{
 		return new Runnable(){
 			@Override
 			public void run() {
-				serverSocket = null;
+				initServerSocket(currentPort);
 				Socket clientSocket = null;
-				
-				while(acceptingConnections){
-					LogServerMessage("Server now listening for connections...");
+				try{
 					
-					try{
+					while(acceptingConnections){
+						LogServerMessage("Server now listening for connections...");
+						
 						clientSocket = serverSocket.accept();
-					} catch (IOException e){
+						
+						LogServerMessage("Client connected from address:" 
+									+ clientSocket.getInetAddress().getHostAddress());
+						ServerThread thread = new ServerThread(clientSocket, appContext);
+						clientList.add(thread);
+						thread.start();
 						
 					}
-					LogServerMessage("Client connected from address:" 
-								+ clientSocket.getInetAddress().getHostAddress());
-					ServerThread thread = new ServerThread(clientSocket, appContext);
-					clientList.add(thread);
-					thread.start();
 					
+					LogServerMessage("Stopping Server");
+				} catch (SocketException sockex){
+					LogServerMessage("Stopping Server");
+				} catch (IOException e){
+					e.printStackTrace();
+					Log.e(TAG, "ServerSocket IO Error");
 				}
-				
 			}
 		};
 
@@ -143,6 +148,10 @@ public class ServerUtility{
 	}
 	
 	public void changeNickname(String user, String nickname){
+		
+	}
+	
+	public void shutdownServerThreads(){
 		
 	}
 	/**
