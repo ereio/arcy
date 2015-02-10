@@ -16,13 +16,31 @@ public class ServerUtility{
 	static final int DEFAULT_PORT = 6665;
 	static int currentPort = 0;
 	static ServerSocket serverSocket;
-	
+	static String motd;
 	private static Context appContext;
 	private static ArrayList<ServerThread> clientList;
 	private static boolean acceptingConnections;
+	private static String MOTD_DEFAULT = "Welcome to this IRC Server!\n"
+			+ "Commands are: /join #<channel_name>\n"
+			+ "				 /msg <nick_name>\n"
+			+ "				 /nick <new_nick_name>\n" 
+			+ "				 /me <message_of_action>\n"
+			+ "				 /leave \n";
 	
 	
-	public static Runnable getServerRunnable(Context context, int port) {
+	/**
+	 * Create a Runnable for executing server based operations off the 
+	 * main UI thread
+	 * 
+	 * @param appContext The Context from the calling Activity, 
+	 * 			used as a cheap way to interact with the Activity
+	 * @param port The port on which we want the server to listen for 
+	 * 			incoming connections
+	 * @param userMOTD the server creators requested message of the day for all
+	 * 			who will login to the irc server
+	 * @return The configured runnable
+	 */
+	public static Runnable getServerRunnable(Context context, int port, String userMOTD) {
 		appContext = context;
 		
 		if (!(port < 1 || port > 65535))
@@ -37,6 +55,13 @@ public class ServerUtility{
 		
 		initServerSocket(currentPort);
 		LogServerMessage("Server initalization success: Port" + currentPort);
+		
+		if(userMOTD != null)
+			motd = userMOTD;
+		else{
+			motd = MOTD_DEFAULT;
+		}
+		LogServerMessage("Server MOTD: " + motd);
 		
 		return new Runnable(){
 			@Override
@@ -100,7 +125,25 @@ public class ServerUtility{
 		serverSocket = null;
 	}
 	
+	/**
+	 * SERVER THREAD COMMAND HANDLING SECTION
+	 */
 	
+	public void messageChannel(String message){
+		
+	}
+	
+	public void subscribeUser(String user, String channel){
+		
+	}
+	
+	public void unsubscribeUser(String user, String channel){
+		
+	}
+	
+	public void changeNickname(String user, String nickname){
+		
+	}
 	/**
 	 * Output the given message to the Server Activity's log
 	 * 

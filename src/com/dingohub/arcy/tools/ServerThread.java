@@ -12,6 +12,7 @@ import android.content.Context;
 import com.dingohub.arcy.ServerSetupActivity;
 
 public class ServerThread extends Thread {
+	
 	static InputStream input = null;
 	static BufferedReader reader = null;
 	static DataOutputStream output = null;
@@ -38,7 +39,7 @@ public class ServerThread extends Thread {
 		while(init_success){
 			try{
 				line = reader.readLine();
-				if((line == null) || line.equalsIgnoreCase("QUIT")){
+				if((line == null) || line.equalsIgnoreCase(Commands.QUIT)){
 					socket.close();
 					return;
 				} else {
@@ -55,6 +56,25 @@ public class ServerThread extends Thread {
 		}
 	}
 
+	/*
+	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
+	 */
+	
+	public void unsubscribeToChannel(){
+		
+	}
+	
+	public void subscribeToChannel(){
+		
+	}
+	
+	public void messageToChannel(){
+		
+	}
+	
+	public void changeNickname(){
+		
+	}
 	/**
 	 * Output the given message to the Server Activity's log
 	 * 

@@ -1,7 +1,5 @@
 package com.dingohub.arcy;
 
-import com.dingohub.arcy.tools.SocketUtil;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dingohub.arcy.tools.ClientUtility;
+import com.dingohub.arcy.tools.SocketUtil;
 
 public class ChatClientActivity extends Activity{
 	private boolean clientConnected;
@@ -129,7 +130,7 @@ public class ChatClientActivity extends Activity{
 		
 		// Obtain a Runnable to be used for client socket initialization 
 		// and communication
-		Runnable clientRunnable = SocketUtil.getClientRunnable(this, 
+		Runnable clientRunnable = ClientUtility.getClientRunnable(this, 
 				serverIP, port);
 		
 		// Execute the client runnable
@@ -163,7 +164,7 @@ public class ChatClientActivity extends Activity{
 	 * Shut down communication with the server
 	 */
 	private void stopClient() {
-		SocketUtil.shutDownClient();
+		ClientUtility.shutDownClient();
 	}
 	
 	@Override

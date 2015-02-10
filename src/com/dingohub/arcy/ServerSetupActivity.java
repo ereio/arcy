@@ -88,7 +88,7 @@ public class ServerSetupActivity extends Activity{
 		// Obtain a Runnable to be used for server socket initialization 
 		// and communication
 		//Runnable serverRunnable = SocketUtil.getServerRunnable(this, port);
-		Runnable serverRunnable = ServerUtility.getServerRunnable(this, port);
+		Runnable serverRunnable = ServerUtility.getServerRunnable(this, port, null);
 		
 		// Execute the server runnable
 		Thread serverThread = new Thread(serverRunnable);
