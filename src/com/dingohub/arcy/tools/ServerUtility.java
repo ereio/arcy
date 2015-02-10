@@ -28,6 +28,7 @@ public class ServerUtility{
 			+ "				 /leave \n";
 	
 	
+	
 	/**
 	 * Create a Runnable for executing server based operations off the 
 	 * main UI thread
@@ -129,7 +130,7 @@ public class ServerUtility{
 	 * SERVER THREAD COMMAND HANDLING SECTION
 	 */
 	
-	public void messageChannel(String message){
+	public void messageChannel(String message, String channel){
 		
 	}
 	

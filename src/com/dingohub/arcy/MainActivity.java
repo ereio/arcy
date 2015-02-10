@@ -2,13 +2,13 @@ package com.dingohub.arcy;
 
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,7 +33,7 @@ public class MainActivity extends ActionBarActivity {
 	TextView tLoadedText;
 	boolean fileCreated;
 	
-	private File file;
+	private String TEST_FILE = "text.txt";
 	private String DIR_PATH;
 	
 	@Override
@@ -75,16 +75,12 @@ public class MainActivity extends ActionBarActivity {
 		bSaveFile.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				file = new File(DIR_PATH,"test.txt");
-				Log.d(TAG, file.getAbsolutePath());
-
-				BufferedWriter out;         
-
+				//file = new File(DIR_PATH,"test.txt");
+        
 				try {
-					FileWriter fileWriter= new FileWriter(Environment.getExternalStorageDirectory().getPath()+"/tsxt.txt");
-	
-					out = new BufferedWriter(fileWriter);	
-					out.write(eText.getText().toString());	
+					FileOutputStream out = openFileOutput(TEST_FILE, Context.MODE_PRIVATE);
+					//BufferedWriter out = new BufferedWriter(new FileWriter(file));	
+					out.write(eText.getText().toString().getBytes());	
 					out.close(); 
 
 				}catch (FileNotFoundException e) {
@@ -99,20 +95,23 @@ public class MainActivity extends ActionBarActivity {
 		bLoadFile.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				file = new File(DIR_PATH,"text.txt");
+				InputStream is;
 				StringBuilder text = new StringBuilder();
+				try {
+					is = openFileInput(TEST_FILE);
 				
-				try{
-					BufferedReader in = new BufferedReader(new FileReader(file));
+					InputStreamReader isr = new InputStreamReader(is);
+					BufferedReader bufferedReader = new BufferedReader(isr);
+					
 					String line = new String();
-					while(((line = in.readLine()) != null)){
+					while(((line = bufferedReader.readLine()) != null)){
 						text.append(line);
 						text.append('\n');
 					}
 					
-					in.close();
+					bufferedReader.close();
 				} catch (IOException e) {
-					Log.e(TAG, "Error Occured upon retreival");
+					Log.e(TAG, "IO error occured upon retreival");
 					e.getStackTrace();
 				}
 				
