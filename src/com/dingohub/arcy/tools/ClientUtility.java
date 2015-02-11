@@ -40,15 +40,17 @@ public class ClientUtility {
 			int port) {
 		try {
 		
-			// Connect to the server
+			
 			clientSocket = new Socket(serverAddress, port);	
-		//	if(clientSocket.isConnected())
+	
 				
-			//else reach = false;
+			
 		} catch (ConnectException cex) {
+			
 			Log.e("Socket Client", cex.getLocalizedMessage()+"LOOK HERE", cex);
 		} catch (IOException ioex) {
-			Log.e("Socket Client", ioex.getLocalizedMessage()+"LOOK HERE", ioex);
+			
+			Log.e("CONNECTION", ioex.getLocalizedMessage()+"LOOK HERE", ioex);
 		} 
 	}
 	
@@ -118,10 +120,9 @@ public class ClientUtility {
 					
 					// Get the String IP address (or host name) to an address 
 					InetAddress server = InetAddress.getByName(serverIP);
-				
-					initClientSocket(server, port);
-			
 					
+					initClientSocket(server, port);
+				
 					// The client was unable to connect to the server, you 
 					// may want to notify the Activity accordingly
 					if (clientSocket == null){
