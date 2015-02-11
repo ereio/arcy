@@ -14,11 +14,13 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.dingohub.arcy.ServerSetupActivity;
 
 public class ServerThread extends Thread {
 	
+	private static String TAG = "ServerThread";
 	static InputStreamReader inputStream = null;
 	static BufferedReader reader = null;
 	
@@ -27,9 +29,9 @@ public class ServerThread extends Thread {
 	private static Context appContext;
 	
 	//these are used to store the nickname and channel of each client
-	String nick = "";
-	String channel = "";
-	String address ="";
+	public String nick = "";
+	public String channel = "";
+	public String address ="";
 	
 	public ServerThread(Socket clientSocket, Context context) {
 		this.socket = clientSocket;
@@ -63,7 +65,7 @@ public class ServerThread extends Thread {
 						
 					//if input is nickname change the nickname
 					if(pinput[0].equals(Commands.NICK))
-						changeNickname(pinput[1]);
+						changeNickname(pinput[1], outputWriter);
 					
 					//if input is join,join the channel and output whoever is already in the channel
 					if(pinput[0].equals(Commands.JOIN))
@@ -81,7 +83,7 @@ public class ServerThread extends Thread {
 					
 					
 					
-					outputWriter.write(nick + input +"\n");
+					outputWriter.write(nick + ": " + input +"\n");
 					outputWriter.flush();
 				
 					input = reader.readLine();
@@ -103,12 +105,12 @@ public class ServerThread extends Thread {
 	
 	// Unsubscribes users to the channel - Command.LEAVE
 	public void unsubscribeToChannel(String[] pinput){
-		
+		Log.i(TAG, "Command.LEAVE hit");
 	}
 	
 	// Subscribes users to a channel - Command.JOIN
 	public void subscribeToChannel(String input[]){
-		
+		Log.i(TAG,"Command.JOIN hit");
 		
 		ArrayList<String> inChannel = new ArrayList<String>();
 		channel = input[1]; 
@@ -144,21 +146,24 @@ public class ServerThread extends Thread {
 	
 	// Messages a specific person in the channel (Or server maybe) - Command.MSG
 	public void messageToChannel(String[] pinput){
-		
+		Log.i(TAG, "Command.MSG hit");
 	}
 	
 	// init by command Commands.NICK - changes nickname of user
-	public void changeNickname(String name){
+	public void changeNickname(String name, OutputStreamWriter outputWriter) throws IOException{
+		Log.i(TAG, "Command.NICK hit");
+		
+		if(name != null){
 			nick = name;
+			outputWriter.write("Nickname is now " + nick);
+		} else {
+			outputWriter.write("Invalid nickname, please choose a non-null nickname");
+		}
 	}
 	
 	//gets the nickname of the person
-	public String getNickname(String address)
-	{
-		if(nick.equals(""))
-			return address;
-		else
-			return nick;
+	public String getNickname(String address){
+		return nick;
 	}
 	/**
 	 * Output the given message to the Server Activity's log
