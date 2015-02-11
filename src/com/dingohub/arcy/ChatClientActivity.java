@@ -192,8 +192,7 @@ public class ChatClientActivity extends Activity{
 	/**
 	 * Shut down communication with the server
 	 */
-	private void stopClient() {
-		ClientUtility.shutDownClient();
+	public void stopClient() {
 		((Button) findViewById(R.id.connectionButton)).setText("Connect");
 		sendButton.setEnabled(false);
 		clientConnected = false;

@@ -97,6 +97,8 @@ public class ClientUtility {
 		}
 		
 		clientSocket = null;
+		ChatClientActivity activity = (ChatClientActivity) appContext;
+		activity.stopClient();
 	}
 	
 	/**
