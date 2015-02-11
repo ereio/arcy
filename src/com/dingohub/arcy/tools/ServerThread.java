@@ -21,7 +21,7 @@ public class ServerThread extends Thread {
 	static InputStreamReader input = null;
 	static BufferedReader reader = null;
 	
-	protected Socket socket;
+	private Socket socket;
 	private boolean init_success = false;
 	private static Context appContext;
 	
@@ -44,9 +44,8 @@ public class ServerThread extends Thread {
 			
 			init_success = true;
 		
-		OutputStream output = socket.getOutputStream();
-			OutputStreamWriter outputWriter = 
-					new OutputStreamWriter(output);
+
+			OutputStreamWriter outputWriter = new OutputStreamWriter(socket.getOutputStream());
 			
 			
 			String line = reader.readLine();
@@ -71,8 +70,8 @@ public class ServerThread extends Thread {
 					
 					
 					
-					outputWriter.write("hello"+"/n");
-						output.flush();
+					outputWriter.write(line +"\n");
+					outputWriter.flush();
 				
 						line = reader.readLine();
 						
@@ -135,7 +134,7 @@ public class ServerThread extends Thread {
 		//couldn't figure it out , however i think the same reasoning could be used to send private messages and outputing
 		//messages to all that are in the same channel.
 		
-		LogServerMessage( "Are also here");
+		LogServerMessage("Are also here");
 		
 		
 	}

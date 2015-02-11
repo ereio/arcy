@@ -147,7 +147,7 @@ public class ClientUtility {
 					// Attempt to read a line of data from the server, 
 					// this is a blocking call
 					String temp = bufferedReader.readLine();
-					LogClientMessage("HELLO!!!!!!!!!"+temp);
+
 					while (temp != null) {
 						String received = "Received: " + temp;
 						LogClientMessage(received);
