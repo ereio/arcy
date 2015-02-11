@@ -86,7 +86,8 @@ public class ServerThread extends Thread {
 						privateMessage(pinput, outputWriter);
 					
 					if(pinput[0].equals(Commands.LIST))
-						
+						listChannelUsers(outputWriter);
+					
 					// Test if command is used, if not it will write
 					// if it is used it won't because commands write to output
 					if(!CommandUsed){
@@ -233,11 +234,11 @@ public class ServerThread extends Thread {
 		
 		StringBuilder temp = new StringBuilder();
 		for(int i = 2; i < pinput.length; ++i)
-			temp.append(pinput[i]);
+			temp.append(pinput[i] + " ");
 			
 		for(int i = 0 ; i < ServerUtility.clientList.size(); ++i){
 			if(pinput[1].equals(ServerUtility.clientList.get(i).nick)){
-				ServerUtility.clientList.get(i).outputWriter.write(nick + " says " + temp);
+				ServerUtility.clientList.get(i).outputWriter.write(nick + " says " + temp + "\n");
 				ServerUtility.clientList.get(i).outputWriter.flush();
 			}
 		}
