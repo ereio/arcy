@@ -27,6 +27,9 @@ public class ChatClientActivity extends Activity{
 	TextView logText;
 	
 	StringBuffer log;
+	String ipAddress;
+	String portText;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -91,9 +94,9 @@ public class ChatClientActivity extends Activity{
 	 */
 	public void connectClick(View view) {
 		// Read the IP Address and Port supplied by the user
-		String ipAddress = ((EditText) findViewById(R.id.editIP)).
+		ipAddress = ((EditText) findViewById(R.id.editIP)).
 				getText().toString();
-		String portText = ((EditText) findViewById(R.id.editPort)).
+		portText = ((EditText) findViewById(R.id.editPort)).
 				getText().toString();	
 		
 		// Ensure an IP address was specified
@@ -132,14 +135,7 @@ public class ChatClientActivity extends Activity{
 		// the server
 		} else {
 			stopClient();
-			((Button) findViewById(R.id.connectionButton)).setText("Connect");
-			sendButton.setEnabled(false);
-			clientConnected = false;
 			
-			((EditText) findViewById(R.id.editIP)).setEnabled(true);
-			((EditText) findViewById(R.id.editPort)).setEnabled(true);
-	
-			LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
 		}
 	}
 	
@@ -198,6 +194,14 @@ public class ChatClientActivity extends Activity{
 	 */
 	private void stopClient() {
 		ClientUtility.shutDownClient();
+		((Button) findViewById(R.id.connectionButton)).setText("Connect");
+		sendButton.setEnabled(false);
+		clientConnected = false;
+		
+		((EditText) findViewById(R.id.editIP)).setEnabled(true);
+		((EditText) findViewById(R.id.editPort)).setEnabled(true);
+
+		LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
 	}
 	
 	@Override
