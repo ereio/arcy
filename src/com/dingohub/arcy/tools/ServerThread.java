@@ -32,6 +32,7 @@ public class ServerThread extends Thread {
 	public String nick = "";
 	public String channel = "";
 	public String address ="";
+	boolean CommandUsed = false;
 	
 	public ServerThread(Socket clientSocket, Context context) {
 		this.socket = clientSocket;
@@ -82,13 +83,12 @@ public class ServerThread extends Thread {
 									+ "\nFrom:" + address + " Nick: " + nick);
 					
 					
+					if(!CommandUsed)
+						outputWriter.write(nick + ": " + input +"\n");
 					
-					outputWriter.write(nick + ": " + input +"\n");
 					outputWriter.flush();
 				
 					input = reader.readLine();
-						
-				
 			}
 		} catch (IOException e){
 			e.printStackTrace();
@@ -106,11 +106,13 @@ public class ServerThread extends Thread {
 	// Unsubscribes users to the channel - Command.LEAVE
 	public void unsubscribeToChannel(String[] pinput){
 		Log.i(TAG, "Command.LEAVE hit");
+		CommandUsed = true;
 	}
 	
 	// Subscribes users to a channel - Command.JOIN
 	public void subscribeToChannel(String input[]){
 		Log.i(TAG,"Command.JOIN hit");
+		CommandUsed = true;
 		
 		ArrayList<String> inChannel = new ArrayList<String>();
 		channel = input[1]; 
@@ -147,17 +149,19 @@ public class ServerThread extends Thread {
 	// Messages a specific person in the channel (Or server maybe) - Command.MSG
 	public void messageToChannel(String[] pinput){
 		Log.i(TAG, "Command.MSG hit");
+		CommandUsed = true;
 	}
 	
 	// init by command Commands.NICK - changes nickname of user
 	public void changeNickname(String name, OutputStreamWriter outputWriter) throws IOException{
 		Log.i(TAG, "Command.NICK hit");
+		CommandUsed = true;
 		
 		if(name != null){
 			nick = name;
-			outputWriter.write("Nickname is now " + nick);
+			outputWriter.write("Your nickname is now " + nick + "\n");
 		} else {
-			outputWriter.write("Invalid nickname, please choose a non-null nickname");
+			outputWriter.write("Invalid nickname, please choose a non-null nickname\n");
 		}
 	}
 	
