@@ -9,5 +9,9 @@
     <string name="file_save_prompt">Type here to save</string>
     <string name="button_save">Save</string>
     <string name="button_retreive">Load</string>
+    <string name="prompt_ipaddress">Enter IRC IP Address</string>
+    <string name="prompt_port">port number (optional)</string>
+    <string name="app_heading">A Simple IRC Server/Client</string>
+    <string name="buttontitle_connect">Connect</string>
 
 </resources>

@@ -26,35 +26,28 @@ import android.widget.TextView;
 public class MainActivity extends ActionBarActivity {
 	private static final String TAG = "MainActivity";
 	Button bClient;
-	Button bServer;
 	Button bSaveFile;
 	Button bLoadFile;
 	
-	EditText eText;
-	TextView tLoadedText;
+	EditText eIPAddress;
+	EditText ePort;
+	TextView tTest;
 	boolean fileCreated;
 	
 	private String TEST_FILE = "text.txt";
-	private String DIR_PATH;
 	
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayShowTitleEnabled(false);
+		getSupportActionBar().setIcon(R.drawable.ic_launcher);
 		
-		
+		eIPAddress = (EditText) findViewById(R.id.edittext_ip_address);
+		ePort = (EditText) findViewById(R.id.edittext_port);
 		bClient = (Button) findViewById(R.id.button_clientinit);
-		bServer = (Button) findViewById(R.id.button_serverinit);
-		bSaveFile = (Button) findViewById(R.id.button_save);
-		bLoadFile = (Button) findViewById(R.id.button_load);
 		
-		eText = (EditText) findViewById(R.id.edittext_filesave);
-		tLoadedText = (TextView) findViewById(R.id.textview_loadedtext);
-		
-		DIR_PATH = Environment.getExternalStorageDirectory() + "/arcy";
 		bClient.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -65,27 +58,44 @@ public class MainActivity extends ActionBarActivity {
 				
 			}
 		});
-		
-		bServer.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(getApplicationContext(), ServerSetupActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);
-				finish();
-				
-			}
-		});
-		
+	}
+
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		if (id == R.id.start_server){
+			Intent intent = new Intent(getApplicationContext(), ServerSetupActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent);
+			finish();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public void DEBUG_loadandsavebuttons(){
 		bSaveFile.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				//file = new File(DIR_PATH,"test.txt");
+				
         
 				try {
 					FileOutputStream out = openFileOutput(TEST_FILE, Context.MODE_PRIVATE);
-					//BufferedWriter out = new BufferedWriter(new FileWriter(file));	
-					out.write(eText.getText().toString().getBytes());	
+						
+					out.write(ePort.getText().toString().getBytes());	
 					out.close(); 
 
 				}catch (FileNotFoundException e) {
@@ -120,30 +130,9 @@ public class MainActivity extends ActionBarActivity {
 					e.getStackTrace();
 				}
 				
-				tLoadedText.setText(text);
+				tTest.setText(text);
 				
 			}
 		});
-		
-	}
-
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 }
