@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 import android.content.Context;
 
@@ -18,7 +19,7 @@ import com.dingohub.arcy.ServerSetupActivity;
 
 public class ServerThread extends Thread {
 	
-	static InputStreamReader input = null;
+	static InputStreamReader inputStream = null;
 	static BufferedReader reader = null;
 	
 	private Socket socket;
@@ -26,62 +27,70 @@ public class ServerThread extends Thread {
 	private static Context appContext;
 	
 	//these are used to store the nickname and channel of each client
-	String Nick = "";
+	String nick = "";
 	String channel = "";
 	String address ="";
 	
 	public ServerThread(Socket clientSocket, Context context) {
 		this.socket = clientSocket;
 		appContext = context;
+		Random rand = new Random();
+		nick = "user" + rand.nextInt(2147483647);
+		
 	}
 	
 	public void run(){
 		try{
 			
-			//used to read input from client
-			input = new InputStreamReader( socket.getInputStream());
-			reader = new BufferedReader(input);
+			//	used to read input from client
+			inputStream = new InputStreamReader( socket.getInputStream());
+			reader = new BufferedReader(inputStream);
 			
-			init_success = true;
-		
-
+			// used to output to the clients socket
 			OutputStreamWriter outputWriter = new OutputStreamWriter(socket.getOutputStream());
 			
+			// saves address
+			address = socket.getInetAddress().getHostAddress();
+			init_success = true;
+				
 			
-			String line = reader.readLine();
-			while(line != null){
-				try{
-					
+			String input = reader.readLine();
+			while(input != null && init_success){
+			
 					//checks if input is a command
-					String name[] = line.split(" ");
-					address = socket.getInetAddress().getHostAddress();
+					// pinput - Parsed Input
+					String pinput[] = input.split(" ");
 						
 					//if input is nickname change the nickname
-					if(name[0].equals(Commands.NICK))
-						changeNickname(name[1], address);
+					if(pinput[0].equals(Commands.NICK))
+						changeNickname(pinput[1]);
 					
 					//if input is join,join the channel and output whoever is already in the channel
-					if(name[0].equals(Commands.JOIN))
-						subscribeToChannel(name);
+					if(pinput[0].equals(Commands.JOIN))
+						subscribeToChannel(pinput);
+					
+					// Allows users to leave channels they've joined
+					if(pinput[0].equals(Commands.LEAVE))
+						unsubscribeToChannel(pinput);
+					
+					if(pinput[0].equals(Commands.MSG))
+						messageToChannel(pinput);
 						
-					
-					LogServerMessage("Received:" + line
-							+ "\nFrom:" + getNickname(address));
-					
+					LogServerMessage("Received:" + input
+									+ "\nFrom:" + address + " Nick: " + nick);
 					
 					
-					outputWriter.write(line +"\n");
+					
+					outputWriter.write(nick + input +"\n");
 					outputWriter.flush();
 				
-						line = reader.readLine();
+					input = reader.readLine();
 						
-				} catch (IOException e) {
-					e.printStackTrace();
-					return;
-				}
+				
 			}
 		} catch (IOException e){
-			
+			e.printStackTrace();
+			return;
 		}
 		
 		
@@ -92,34 +101,28 @@ public class ServerThread extends Thread {
 	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
 	 */
 	
-	public void unsubscribeToChannel(){
+	// Unsubscribes users to the channel - Command.LEAVE
+	public void unsubscribeToChannel(String[] pinput){
 		
 	}
 	
-	public void subscribeToChannel(String name[]){
+	// Subscribes users to a channel - Command.JOIN
+	public void subscribeToChannel(String input[]){
 		
 		
 		ArrayList<String> inChannel = new ArrayList<String>();
-		channel = name[1]; 
+		channel = input[1]; 
 		//sets the channel name that the person joined
 		//make this an array to be able to join multiple channels
 		
 		//for loop will access the handler of other threads and check
 		//if they are in the channel the client joined
-		for(int i = 0 ; i < ServerUtility.clientList.size(); ++ i)
+		for(int i = 0 ; i < ServerUtility.clientList.size(); ++i)
 		{
 			//adds the people who are in the channel to the inchannel array
 			if(channel.equals(ServerUtility.clientList.get(i).channel))
-			{
-				if(ServerUtility.clientList.get(i).Nick.equals(""))
-					inChannel.add(ServerUtility.clientList.get(i).address);
-				else
-					inChannel.add(ServerUtility.clientList.get(i).Nick);
-					
+					inChannel.add(ServerUtility.clientList.get(i).nick);
 				
-				
-				
-			}
 		}
 		
 		//logs the list of everyone in the channel
@@ -139,23 +142,23 @@ public class ServerThread extends Thread {
 		
 	}
 	
-	public void messageToChannel(){
+	// Messages a specific person in the channel (Or server maybe) - Command.MSG
+	public void messageToChannel(String[] pinput){
 		
 	}
 	
-	//changes the nickname
-	public void changeNickname(String name,String address){
-	
-			Nick = name;
+	// init by command Commands.NICK - changes nickname of user
+	public void changeNickname(String name){
+			nick = name;
 	}
 	
 	//gets the nickname of the person
 	public String getNickname(String address)
 	{
-		if(Nick.equals(""))
+		if(nick.equals(""))
 			return address;
 		else
-			return Nick;
+			return nick;
 	}
 	/**
 	 * Output the given message to the Server Activity's log

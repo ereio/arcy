@@ -8,5 +8,6 @@ public class Commands {
 	public static final String MSG = "/msg";
 	public static final String QUIT = "/quit";
 	public static final String CHAN_TAG = " #";
+	
 
 }

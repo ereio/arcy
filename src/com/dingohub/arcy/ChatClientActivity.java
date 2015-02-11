@@ -47,7 +47,6 @@ public class ChatClientActivity extends Activity{
 			@Override
 			public void onClick(View v) {
 				ClientUtility.sendMessageToServer(messageText.getText().toString());
-				LogMessage("Sent: " + messageText.getText());
 				messageText.setText("");
 				
 			}
@@ -141,9 +140,11 @@ public class ChatClientActivity extends Activity{
 		// This is not the best way to perform this test, however, it is 
 		// used just for this example to indicate that the test should be 
 		// performed
-		if (serverAddress == null || serverAddress.isEmpty()) 
+		if (serverAddress == null || serverAddress.isEmpty()){
 			Toast.makeText(this, "Client is not connected to a network", 
 					Toast.LENGTH_SHORT).show();
+			return;
+		}
 		
 		// Obtain a Runnable to be used for client socket initialization 
 		// and communication

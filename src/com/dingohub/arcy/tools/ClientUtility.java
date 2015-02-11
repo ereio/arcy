@@ -149,7 +149,7 @@ public class ClientUtility {
 					String temp = bufferedReader.readLine();
 
 					while (temp != null) {
-						String received = "Received: " + temp;
+						String received = temp;
 						LogClientMessage(received);
 						temp = bufferedReader.readLine();
 					}
