@@ -1,6 +1,7 @@
 package com.dingohub.arcy;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,7 +20,10 @@ import com.dingohub.arcy.tools.SocketUtil;
 public class ChatClientActivity extends Activity{
 	private boolean clientConnected;
 	EditText messageText;
+	EditText Ipedit ;
+	EditText portedit;
 	Button sendButton;
+	Button connectButton;
 	TextView logText;
 	
 	StringBuffer log;
@@ -34,13 +38,25 @@ public class ChatClientActivity extends Activity{
 		messageText = (EditText) findViewById(R.id.message);
 		sendButton = (Button) findViewById(R.id.sendButton);
 		logText = (TextView) findViewById(R.id.logText);
+		connectButton = (Button)findViewById(R.id.connectionButton);
 		
+		Ipedit = (EditText)findViewById(R.id.editIP);
+		portedit = (EditText)findViewById(R.id.editPort);
 		/**
 		 * If the user has input a message to be sent to the server 
 		 * and we are connected to the server then enable the send button
 		 */
 		
+		Intent i = getIntent();
+		Bundle bundle = i.getExtras();
 		
+		if(bundle!= null)
+		{
+		Ipedit.setText( bundle.getString("IP"))	;
+		portedit.setText( bundle.getString("port"));
+		connectButton.performClick();
+			
+		}
 		
 		sendButton.setOnClickListener(new OnClickListener() {
 			

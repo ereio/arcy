@@ -53,6 +53,8 @@ public class MainActivity extends ActionBarActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent(getApplicationContext(), ChatClientActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra("IP",eIPAddress.getText().toString());
+				intent.putExtra("port", ePort.getText().toString());
 				startActivity(intent);
 				finish();
 				
