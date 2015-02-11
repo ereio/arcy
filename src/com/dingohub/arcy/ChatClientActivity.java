@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -38,6 +39,20 @@ public class ChatClientActivity extends Activity{
 		 * If the user has input a message to be sent to the server 
 		 * and we are connected to the server then enable the send button
 		 */
+		
+		
+		
+		sendButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				ClientUtility.sendMessageToServer(messageText.getText().toString());
+				LogMessage("Sent: " + messageText.getText());
+				messageText.setText("");
+				
+			}
+		});
+		
 		messageText.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
 				if (messageText.getText().toString().isEmpty()) {
@@ -98,7 +113,7 @@ public class ChatClientActivity extends Activity{
 				sendButton.setEnabled(true);
 			
 			LogMessage("Connected to server @ " + ipAddress + ":" + portText);
-		
+			
 		// We are already connected and would like to disconnect from 
 		// the server
 		} else {

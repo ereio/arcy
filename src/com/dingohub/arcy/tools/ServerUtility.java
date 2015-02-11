@@ -1,6 +1,9 @@
 package com.dingohub.arcy.tools;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -19,7 +22,7 @@ public class ServerUtility{
 	static ServerSocket serverSocket;
 	static String motd;
 	private static Context appContext;
-	private static ArrayList<ServerThread> clientList;
+	public static ArrayList<ServerThread> clientList =new ArrayList<ServerThread>();  
 	private static boolean acceptingConnections;
 	private static String MOTD_DEFAULT = "Welcome to this IRC Server!\n"
 			+ "Commands are: /join #<channel_name>\n"
@@ -53,7 +56,7 @@ public class ServerUtility{
 			Toast.makeText(appContext, "Port selected is not valid", Toast.LENGTH_SHORT).show();
 			
 		
-		clientList = new ArrayList<ServerThread>();
+		//clientList = new ArrayList<ServerThread>();
 		
 		LogServerMessage("Server initalization success: Port" + currentPort);
 		
@@ -81,6 +84,8 @@ public class ServerUtility{
 						ServerThread thread = new ServerThread(clientSocket, appContext);
 						clientList.add(thread);
 						thread.start();
+						
+						
 						
 					}
 					
@@ -121,6 +126,7 @@ public class ServerUtility{
 			if (serverSocket != null) {
 				// Close the server socket, any attempts to connect after 
 				// this is called will fail
+				
 				serverSocket.close();
 			}
 		} catch (IOException ioex) {
@@ -136,6 +142,8 @@ public class ServerUtility{
 	 */
 	
 	public void messageChannel(String message, String channel){
+		
+		
 		
 	}
 	

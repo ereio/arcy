@@ -8,9 +8,12 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,7 +26,7 @@ public class ClientUtility {
 	static Socket clientSocket;
 	static PrintWriter printWriter;
 	private static Context appContext;
-	
+
 	
 	/**
 	 * Initialize the client socket on the given address and port
@@ -36,12 +39,16 @@ public class ClientUtility {
 	private static void initClientSocket(InetAddress serverAddress, 
 			int port) {
 		try {
+		
 			// Connect to the server
-			clientSocket = new Socket(serverAddress, port);
+			clientSocket = new Socket(serverAddress, port);	
+		//	if(clientSocket.isConnected())
+				
+			//else reach = false;
 		} catch (ConnectException cex) {
-			Log.e("Socket Client", cex.getLocalizedMessage(), cex);
+			Log.e("Socket Client", cex.getLocalizedMessage()+"LOOK HERE", cex);
 		} catch (IOException ioex) {
-			Log.e("Socket Client", ioex.getLocalizedMessage(), ioex);
+			Log.e("Socket Client", ioex.getLocalizedMessage()+"LOOK HERE", ioex);
 		} 
 	}
 	
@@ -111,9 +118,10 @@ public class ClientUtility {
 					
 					// Get the String IP address (or host name) to an address 
 					InetAddress server = InetAddress.getByName(serverIP);
-					
+				
 					initClientSocket(server, port);
 			
+					
 					// The client was unable to connect to the server, you 
 					// may want to notify the Activity accordingly
 					if (clientSocket == null){
@@ -135,10 +143,11 @@ public class ClientUtility {
 					BufferedReader bufferedReader = 
 							new BufferedReader(streamReader);
 					
+			
 					// Attempt to read a line of data from the server, 
 					// this is a blocking call
 					String temp = bufferedReader.readLine();
-					
+					LogClientMessage("HELLO!!!!!!!!!"+temp);
 					while (temp != null) {
 						String received = "Received: " + temp;
 						LogClientMessage(received);
@@ -152,7 +161,7 @@ public class ClientUtility {
 			}
 		};
 	}
-	
+
 	/**
 	 * Output the given message to the Client Activity's log
 	 * 
