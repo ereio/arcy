@@ -130,20 +130,26 @@ public class ServerThread extends Thread {
 	}
 	
 	public void listChannelUsers(OutputStreamWriter outputWriter) throws IOException{
-		StringBuilder listingUsers = new StringBuilder();
-		ArrayList<String> userArray = new ArrayList<String>();
+		CommandUsed = true;
 		
-		for(int i = 0; i < ServerUtility.channelList.size(); ++i)
-			if(channel.equals(ServerUtility.channelList.get(i).name))
-				userArray = ServerUtility.channelList.get(i).users;
-		
-		for(String i : userArray)
-			listingUsers.append(i + " ");
-		
-		outputWriter.write("Users in " + channel + " are " + listingUsers.toString());
-		outputWriter.flush();
-	}
-	
+		if(channel != null){
+			StringBuilder listingUsers = new StringBuilder();
+			ArrayList<String> userArray = new ArrayList<String>();
+			
+			for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+				if(channel.equals(ServerUtility.channelList.get(i).name))
+					userArray = ServerUtility.channelList.get(i).users;
+			
+			for(String i : userArray)
+				listingUsers.append(i + " ");
+			
+			outputWriter.write("Users in " + channel + " are " + listingUsers.toString() + "\n");
+			outputWriter.flush();
+		} else {
+			outputWriter.write("You're in the Lobby\n" + "Users online:" + Integer.toString(ServerUtility.clientList.size()) + "\n");
+			outputWriter.flush();
+		}
+	}	
 	
 	// Default when no command is used
 	public void postInChannel(String input, OutputStreamWriter outputWriter) throws IOException{
