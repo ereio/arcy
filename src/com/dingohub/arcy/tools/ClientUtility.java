@@ -151,8 +151,13 @@ public class ClientUtility {
 
 					while (temp != null) {
 						String received = temp;
-						LogClientMessage(received);
-						temp = bufferedReader.readLine();
+						if(received.equals("DISCONNECT")){
+							shutDownClient();
+							temp = null;
+						} else {
+							LogClientMessage(received);
+							temp = bufferedReader.readLine();
+						}
 					}
 				} catch (UnknownHostException uhex) {
 					Log.e("Socket Client", uhex.getLocalizedMessage(), uhex);

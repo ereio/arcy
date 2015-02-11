@@ -75,11 +75,11 @@ public class ServerThread extends Thread {
 					
 					//if input is join,join the channel and output whoever is already in the channel
 					if(pinput[0].equals(Commands.JOIN))
-						subscribeToChannel(pinput, outputWriter);
+						subscribeToChannel(pinput[1], outputWriter);
 					
 					// Allows users to leave channels they've joined
 					if(pinput[0].equals(Commands.LEAVE))
-						unsubscribeToChannel(pinput, outputWriter);
+						unsubscribeToChannel(pinput[1], outputWriter);
 					
 					// Private messaging command
 					if(pinput[0].equals(Commands.MSG))
@@ -87,6 +87,9 @@ public class ServerThread extends Thread {
 					
 					if(pinput[0].equals(Commands.LIST))
 						listChannelUsers(outputWriter);
+					
+					if(pinput[0].equals(Commands.QUIT))
+						quitConnection();
 					
 					// Test if command is used, if not it will write
 					// if it is used it won't because commands write to output
@@ -102,14 +105,29 @@ public class ServerThread extends Thread {
 			e.printStackTrace();
 			return;
 		}
-		
-		
-	
 	}
 
 	/*
 	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
 	 */
+	
+	public void quitConnection(){
+		try {
+			unsubscribeToChannel(channel, outputWriter);
+			outputWriter.write("Disconnecting from Server...");
+			outputWriter.flush();
+			outputWriter.write("DISCONNECT");
+			outputWriter.flush();
+			outputWriter.close();
+			inputStream.close();
+			socket.close();
+			init_success = false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	
 	public void listChannelUsers(OutputStreamWriter outputWriter) throws IOException{
 		StringBuilder listingUsers = new StringBuilder();
@@ -153,7 +171,7 @@ public class ServerThread extends Thread {
 	}
 	
 	// Unsubscribes users to the channel - Command.LEAVE
-	public void unsubscribeToChannel(String[] pinput, OutputStreamWriter outputWriter){
+	public void unsubscribeToChannel(String pinput, OutputStreamWriter outputWriter){
 		Log.i(TAG, "Command.LEAVE hit");
 		CommandUsed = true;
 		
@@ -166,7 +184,7 @@ public class ServerThread extends Thread {
 	}
 	
 	// Subscribes users to a channel - Command.JOIN
-	public void subscribeToChannel(String input[], OutputStreamWriter outputWriter) throws IOException{
+	public void subscribeToChannel(String reqChannel, OutputStreamWriter outputWriter) throws IOException{
 		Log.i(TAG,"Command.JOIN hit");
 		
 		ArrayList<String> channelUsers = new ArrayList<String>();
@@ -175,7 +193,7 @@ public class ServerThread extends Thread {
 		
 		// NEED ERROR CHECKING
 		
-		channel = input[1];
+		channel = reqChannel;
 		
 		// Channels are added through the Server Utility Channel Array
 		// When a user joins a channel, it searchs to add the user
@@ -196,24 +214,7 @@ public class ServerThread extends Thread {
 			ServerUtility.channelList.get(ServerUtility.channelList.size()-1).addUser(this, nick);
 			channelUsers.add(nick);
 		}
-		
-		/*//////////////////////////////////////////////////////////////
-		ArrayList<String> inChannel = new ArrayList<String>();
-		channel = input[1]; 
-		//sets the channel name that the person joined
-		//make this an array to be able to join multiple channels
-		
-		
-		//for loop will access the handler of other threads and check
-		//if they are in the channel the client joined
-		for(int i = 0 ; i < ServerUtility.clientList.size(); ++i)
-		{
-			//adds the people who are in the channel to the inchannel array
-			if(channel.equals(ServerUtility.clientList.get(i).channel))
-					inChannel.add(ServerUtility.clientList.get(i).nick);
-				
-		}
-		*////////////////////////////////////////////////////////////////
+
 		
 		//logs the list of everyone in the channel
 		outputWriter.write("You've joined: " + channel + "\n");
@@ -248,10 +249,7 @@ public class ServerThread extends Thread {
 	public void changeNickname(String name, OutputStreamWriter outputWriter) throws IOException{
 		Log.i(TAG, "Command.NICK hit");
 		CommandUsed = true;
-		
-			
-		
-		
+
 		if(name != null){
 			swapChannelName(name);
 			nick = name;
