@@ -1,14 +1,9 @@
 package com.dingohub.arcy.tools;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
@@ -21,8 +16,8 @@ import com.dingohub.arcy.ServerSetupActivity;
 public class ServerThread extends Thread {
 	
 	private static String TAG = "ServerThread";
-	static InputStreamReader inputStream = null;
-	static BufferedReader reader = null;
+	public volatile InputStreamReader inputStream = null;
+	public volatile BufferedReader reader = null;
 	
 	private Socket socket;
 	private boolean init_success = false;
@@ -30,15 +25,18 @@ public class ServerThread extends Thread {
 	
 	//these are used to store the nickname and channel of each client
 	public String nick = "";
-	public String channel = "";
+	public String channel = null;
 	public String address ="";
+	public String motd = "";
+	public volatile OutputStreamWriter outputWriter = null;
 	boolean CommandUsed = false;
 	
-	public ServerThread(Socket clientSocket, Context context) {
+	public ServerThread(Socket clientSocket, Context context, String motd) {
 		this.socket = clientSocket;
 		appContext = context;
 		Random rand = new Random();
 		nick = "user" + rand.nextInt(2147483647);
+		this.motd = motd;
 		
 	}
 	
@@ -50,16 +48,23 @@ public class ServerThread extends Thread {
 			reader = new BufferedReader(inputStream);
 			
 			// used to output to the clients socket
-			OutputStreamWriter outputWriter = new OutputStreamWriter(socket.getOutputStream());
+			outputWriter = new OutputStreamWriter(socket.getOutputStream());
 			
 			// saves address
 			address = socket.getInetAddress().getHostAddress();
 			init_success = true;
-				
+			
+			// writes the message of the day to the user then flushes and enters loop
+			outputWriter.write(motd);
+			outputWriter.flush();
 			
 			String input = reader.readLine();
 			while(input != null && init_success){
 			
+					// Logs input to server terminal
+					LogServerMessage("Received:" + input
+						+ "\nFrom:" + address + " Nick: " + nick);
+					
 					//checks if input is a command
 					// pinput - Parsed Input
 					String pinput[] = input.split(" ");
@@ -70,24 +75,24 @@ public class ServerThread extends Thread {
 					
 					//if input is join,join the channel and output whoever is already in the channel
 					if(pinput[0].equals(Commands.JOIN))
-						subscribeToChannel(pinput);
+						subscribeToChannel(pinput, outputWriter);
 					
 					// Allows users to leave channels they've joined
 					if(pinput[0].equals(Commands.LEAVE))
 						unsubscribeToChannel(pinput);
 					
+					// Private messaging command
 					if(pinput[0].equals(Commands.MSG))
 						messageToChannel(pinput);
-						
-					LogServerMessage("Received:" + input
-									+ "\nFrom:" + address + " Nick: " + nick);
 					
+					// Test if command is used, if not it will write
+					// if it is used it won't because commands write to output
+					if(!CommandUsed){
+						postInChannel(input, outputWriter);
+					}
 					
-					if(!CommandUsed)
-						outputWriter.write(nick + ": " + input +"\n");
-					
-					outputWriter.flush();
-				
+					// flips the command used and blocks at read line
+					CommandUsed = false;
 					input = reader.readLine();
 			}
 		} catch (IOException e){
@@ -103,6 +108,31 @@ public class ServerThread extends Thread {
 	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
 	 */
 	
+	// Default when no command is used
+	public void postInChannel(String input, OutputStreamWriter outputWriter) throws IOException{
+		if(channel != null){
+			ArrayList<ServerThread> userToMessage = new ArrayList<ServerThread>();
+			
+			// Finds the channel object in case more people added the channel
+			// or state of channel changes
+			// might be able to just keep a handle using array index but don't
+			// know how safe that is
+			// probably should use a map and not array
+			for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+				if(channel.equals(ServerUtility.channelList.get(i).name))
+					userToMessage = ServerUtility.channelList.get(i).userThreads;
+			
+			// Use the thread handles to send everyone messages from their threads
+			for(ServerThread i: userToMessage){
+				i.outputWriter.write(nick + ": " + input +"\n");
+				i.outputWriter.flush();
+			}
+		} else {
+			outputWriter.write(nick + ": " + input +"\n");
+			outputWriter.flush();
+		}
+	}
+	
 	// Unsubscribes users to the channel - Command.LEAVE
 	public void unsubscribeToChannel(String[] pinput){
 		Log.i(TAG, "Command.LEAVE hit");
@@ -110,14 +140,44 @@ public class ServerThread extends Thread {
 	}
 	
 	// Subscribes users to a channel - Command.JOIN
-	public void subscribeToChannel(String input[]){
+	public void subscribeToChannel(String input[], OutputStreamWriter outputWriter) throws IOException{
 		Log.i(TAG,"Command.JOIN hit");
+		
+		ArrayList<String> channelUsers = new ArrayList<String>();
+		boolean channelFound = false;
 		CommandUsed = true;
 		
+		// NEED ERROR CHECKING
+		channel = input[1];
+		
+		// Channels are added through the Server Utility Channel Array
+		// When a user joins a channel, it searchs to add the user
+		// if it's a real channel, then the user is add and the channel Users nicknames
+		// are added to the array for printing
+		for(int i = 0; i < ServerUtility.channelList.size(); ++i){
+			if(channel.equals(ServerUtility.channelList.get(i).name)){
+				ServerUtility.channelList.get(i).addUser(nick);
+				ServerUtility.channelList.get(i).addThread(this);
+				channelUsers = ServerUtility.channelList.get(i).users;
+				channelFound = true;
+			}
+		}
+		
+		// if it's NOT a real channel, then the channel is add and the users is added
+		// as the first user in the channel
+		if(!channelFound){
+			ServerUtility.channelList.add(new Channel(channel));
+			ServerUtility.channelList.get(ServerUtility.channelList.size()-1).addUser(nick);
+			ServerUtility.channelList.get(ServerUtility.channelList.size()-1).addThread(this);
+			channelUsers.add(nick);
+		}
+		
+		/*//////////////////////////////////////////////////////////////
 		ArrayList<String> inChannel = new ArrayList<String>();
 		channel = input[1]; 
 		//sets the channel name that the person joined
 		//make this an array to be able to join multiple channels
+		
 		
 		//for loop will access the handler of other threads and check
 		//if they are in the channel the client joined
@@ -128,20 +188,16 @@ public class ServerThread extends Thread {
 					inChannel.add(ServerUtility.clientList.get(i).nick);
 				
 		}
+		*////////////////////////////////////////////////////////////////
 		
 		//logs the list of everyone in the channel
-		LogServerMessage("Joined: " + channel );
-		for(int i = 0 ; i < inChannel.size(); ++i)
-		LogServerMessage( inChannel.get(i));
+		outputWriter.write("You've joined: " + channel + "\n");
 		
-		//!!! important!!!!!!!
-		//instead of logging to the Server it should send a message back to the client telling them
-		//who is in the server but however the outputWriter.write(String) function is not sending anything to 
-		//the client its not "echoing anything back" so the client buffer.readline is blocking and not receiving anything
-		//couldn't figure it out , however i think the same reasoning could be used to send private messages and outputing
-		//messages to all that are in the same channel.
+		for(String i : channelUsers)
+			outputWriter.append(i + " ");
 		
-		LogServerMessage("Are also here");
+		outputWriter.write("\n" + "Are also here\n");
+		outputWriter.flush();
 		
 		
 	}
@@ -163,6 +219,8 @@ public class ServerThread extends Thread {
 		} else {
 			outputWriter.write("Invalid nickname, please choose a non-null nickname\n");
 		}
+		
+		outputWriter.flush();
 	}
 	
 	//gets the nickname of the person

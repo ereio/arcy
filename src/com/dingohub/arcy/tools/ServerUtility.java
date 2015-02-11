@@ -1,9 +1,6 @@
 package com.dingohub.arcy.tools;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -22,14 +19,16 @@ public class ServerUtility{
 	static ServerSocket serverSocket;
 	static String motd;
 	private static Context appContext;
-	public static ArrayList<ServerThread> clientList =new ArrayList<ServerThread>();  
+	public static volatile ArrayList<ServerThread> clientList = new ArrayList<ServerThread>();  
+	public static volatile ArrayList<Channel> channelList = new ArrayList<Channel>();
 	private static boolean acceptingConnections;
 	private static String MOTD_DEFAULT = "Welcome to this IRC Server!\n"
-			+ "Commands are: /join #<channel_name>\n"
-			+ "				 /msg <nick_name>\n"
-			+ "				 /nick <new_nick_name>\n" 
-			+ "				 /me <message_of_action>\n"
-			+ "				 /leave \n";
+			+ "Commands are: \n"
+			+ "/join #<channel_name>\n"
+			+ "/msg <nick_name>\n"
+			+ "/nick <new_nick_name>\n" 
+			+ "/me <message_of_action>\n"
+			+ "/leave \n";
 	
 	
 	
@@ -56,8 +55,6 @@ public class ServerUtility{
 			Toast.makeText(appContext, "Port selected is not valid", Toast.LENGTH_SHORT).show();
 			
 		
-		//clientList = new ArrayList<ServerThread>();
-		
 		LogServerMessage("Server initalization success: Port" + currentPort);
 		
 		if(userMOTD != null)
@@ -81,7 +78,7 @@ public class ServerUtility{
 						
 						LogServerMessage("Client connected from address:" 
 									+ clientSocket.getInetAddress().getHostAddress());
-						ServerThread thread = new ServerThread(clientSocket, appContext);
+						ServerThread thread = new ServerThread(clientSocket, appContext, motd);
 						clientList.add(thread);
 						thread.start();
 						
@@ -137,28 +134,7 @@ public class ServerUtility{
 		serverSocket = null;
 	}
 	
-	/**
-	 * SERVER THREAD COMMAND HANDLING SECTION
-	 */
-	
-	public void messageChannel(String message, String channel){
-		
-		
-		
-	}
-	
-	public void subscribeUser(String user, String channel){
-		
-	}
-	
-	public void unsubscribeUser(String user, String channel){
-		
-	}
-	
-	public void changeNickname(String user, String nickname){
-		
-	}
-	
+	// Stops the server threads
 	public void shutdownServerThreads(){
 		
 	}
