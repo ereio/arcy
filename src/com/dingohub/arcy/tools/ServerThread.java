@@ -54,21 +54,17 @@ public class ServerThread extends Thread {
 				try{
 					
 					//checks if input is a command
-						String name[] = line.split(" ");
-						address = socket.getInetAddress().getHostAddress();
-						//if input is nickname change the nickname
+					String name[] = line.split(" ");
+					address = socket.getInetAddress().getHostAddress();
+						
+					//if input is nickname change the nickname
 					if(name[0].equals(Commands.NICK))
-					{
-						//changes the nickname
-					changeNickname(name[1], address);
+						changeNickname(name[1], address);
 					
-					}
 					//if input is join,join the channel and output whoever is already in the channel
 					if(name[0].equals(Commands.JOIN))
-					{
 						subscribeToChannel(name);
 						
-					}
 					
 					LogServerMessage("Received:" + line
 							+ "\nFrom:" + getNickname(address));
@@ -116,8 +112,8 @@ public class ServerThread extends Thread {
 			//adds the people who are in the channel to the inchannel array
 			if(channel.equals(ServerUtility.clientList.get(i).channel))
 			{
-				if(ServerUtility.clientList.get(i).Nick.equals( ""))
-				inChannel.add(ServerUtility.clientList.get(i).address);
+				if(ServerUtility.clientList.get(i).Nick.equals(""))
+					inChannel.add(ServerUtility.clientList.get(i).address);
 				else
 					inChannel.add(ServerUtility.clientList.get(i).Nick);
 					
@@ -158,7 +154,7 @@ public class ServerThread extends Thread {
 	public String getNickname(String address)
 	{
 		if(Nick.equals(""))
-		return address;
+			return address;
 		else
 			return Nick;
 	}
