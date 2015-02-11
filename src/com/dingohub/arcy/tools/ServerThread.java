@@ -105,9 +105,6 @@ public class ServerThread extends Thread {
 			e.printStackTrace();
 			return;
 		}
-		
-		
-	
 	}
 
 	/*
@@ -119,6 +116,8 @@ public class ServerThread extends Thread {
 			unsubscribeToChannel(channel, outputWriter);
 			outputWriter.write("Disconnecting from Server...");
 			outputWriter.flush();
+			outputWriter.close();
+			inputStream.close();
 			socket.close();
 			init_success = false;
 		} catch (IOException e) {

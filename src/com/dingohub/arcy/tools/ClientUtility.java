@@ -153,6 +153,8 @@ public class ClientUtility {
 						LogClientMessage(received);
 						temp = bufferedReader.readLine();
 					}
+					
+					shutDownClient();
 				} catch (UnknownHostException uhex) {
 					Log.e("Socket Client", uhex.getLocalizedMessage(), uhex);
 				} catch (IOException ioex) {

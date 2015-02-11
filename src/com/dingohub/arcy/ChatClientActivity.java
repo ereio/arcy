@@ -50,11 +50,10 @@ public class ChatClientActivity extends Activity{
 		Intent i = getIntent();
 		Bundle bundle = i.getExtras();
 		
-		if(bundle!= null)
-		{
-		Ipedit.setText( bundle.getString("IP"))	;
-		portedit.setText( bundle.getString("port"));
-		connectButton.performClick();
+		if(bundle!= null){
+			Ipedit.setText( bundle.getString("IP"))	;
+			portedit.setText( bundle.getString("port"));
+			connectButton.performClick();
 			
 		}
 		
