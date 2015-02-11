@@ -116,6 +116,8 @@ public class ServerThread extends Thread {
 			unsubscribeToChannel(channel, outputWriter);
 			outputWriter.write("Disconnecting from Server...");
 			outputWriter.flush();
+			outputWriter.write("DISCONNECT");
+			outputWriter.flush();
 			outputWriter.close();
 			inputStream.close();
 			socket.close();
