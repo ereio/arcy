@@ -193,14 +193,19 @@ public class ChatClientActivity extends Activity{
 	 * Shut down communication with the server
 	 */
 	public void stopClient() {
-		((Button) findViewById(R.id.connectionButton)).setText("Connect");
-		sendButton.setEnabled(false);
-		clientConnected = false;
-		
-		((EditText) findViewById(R.id.editIP)).setEnabled(true);
-		((EditText) findViewById(R.id.editPort)).setEnabled(true);
-
-		LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
+		runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+				((Button) findViewById(R.id.connectionButton)).setText("Connect");
+				sendButton.setEnabled(false);
+				clientConnected = false;
+				
+				((EditText) findViewById(R.id.editIP)).setEnabled(true);
+				((EditText) findViewById(R.id.editPort)).setEnabled(true);
+	
+				LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
+			}
+		});
 	}
 	
 	@Override
