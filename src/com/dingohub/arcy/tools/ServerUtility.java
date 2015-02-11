@@ -25,7 +25,7 @@ public class ServerUtility{
 	private static String MOTD_DEFAULT = "Welcome to this IRC Server!\n"
 			+ "Commands are: \n"
 			+ "/join #<channel_name>\n"
-			+ "/msg <nick_name>\n"
+			+ "/msg <nick_name> <message>\n"
 			+ "/nick <new_nick_name>\n" 
 			+ "/me <message_of_action>\n"
 			+ "/leave \n";
@@ -81,8 +81,6 @@ public class ServerUtility{
 						ServerThread thread = new ServerThread(clientSocket, appContext, motd);
 						clientList.add(thread);
 						thread.start();
-						
-						
 						
 					}
 					

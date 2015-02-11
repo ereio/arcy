@@ -79,12 +79,14 @@ public class ServerThread extends Thread {
 					
 					// Allows users to leave channels they've joined
 					if(pinput[0].equals(Commands.LEAVE))
-						unsubscribeToChannel(pinput);
+						unsubscribeToChannel(pinput, outputWriter);
 					
 					// Private messaging command
 					if(pinput[0].equals(Commands.MSG))
-						messageToChannel(pinput);
+						privateMessage(pinput, outputWriter);
 					
+					if(pinput[0].equals(Commands.LIST))
+						
 					// Test if command is used, if not it will write
 					// if it is used it won't because commands write to output
 					if(!CommandUsed){
@@ -107,6 +109,22 @@ public class ServerThread extends Thread {
 	/*
 	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
 	 */
+	
+	public void listChannelUsers(OutputStreamWriter outputWriter) throws IOException{
+		StringBuilder listingUsers = new StringBuilder();
+		ArrayList<String> userArray = new ArrayList<String>();
+		
+		for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+			if(channel.equals(ServerUtility.channelList.get(i).name))
+				userArray = ServerUtility.channelList.get(i).users;
+		
+		for(String i : userArray)
+			listingUsers.append(i + " ");
+		
+		outputWriter.write("Users in " + channel + " are " + listingUsers.toString());
+		outputWriter.flush();
+	}
+	
 	
 	// Default when no command is used
 	public void postInChannel(String input, OutputStreamWriter outputWriter) throws IOException{
@@ -134,9 +152,16 @@ public class ServerThread extends Thread {
 	}
 	
 	// Unsubscribes users to the channel - Command.LEAVE
-	public void unsubscribeToChannel(String[] pinput){
+	public void unsubscribeToChannel(String[] pinput, OutputStreamWriter outputWriter){
 		Log.i(TAG, "Command.LEAVE hit");
 		CommandUsed = true;
+		
+		if(channel != null){
+			for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+				if(channel.equals(ServerUtility.channelList.get(i).name)){
+					ServerUtility.channelList.get(i).removeUser(this, nick);
+				}
+		}
 	}
 	
 	// Subscribes users to a channel - Command.JOIN
@@ -148,6 +173,7 @@ public class ServerThread extends Thread {
 		CommandUsed = true;
 		
 		// NEED ERROR CHECKING
+		
 		channel = input[1];
 		
 		// Channels are added through the Server Utility Channel Array
@@ -156,8 +182,7 @@ public class ServerThread extends Thread {
 		// are added to the array for printing
 		for(int i = 0; i < ServerUtility.channelList.size(); ++i){
 			if(channel.equals(ServerUtility.channelList.get(i).name)){
-				ServerUtility.channelList.get(i).addUser(nick);
-				ServerUtility.channelList.get(i).addThread(this);
+				ServerUtility.channelList.get(i).addUser(this, nick);
 				channelUsers = ServerUtility.channelList.get(i).users;
 				channelFound = true;
 			}
@@ -167,8 +192,7 @@ public class ServerThread extends Thread {
 		// as the first user in the channel
 		if(!channelFound){
 			ServerUtility.channelList.add(new Channel(channel));
-			ServerUtility.channelList.get(ServerUtility.channelList.size()-1).addUser(nick);
-			ServerUtility.channelList.get(ServerUtility.channelList.size()-1).addThread(this);
+			ServerUtility.channelList.get(ServerUtility.channelList.size()-1).addUser(this, nick);
 			channelUsers.add(nick);
 		}
 		
@@ -203,9 +227,20 @@ public class ServerThread extends Thread {
 	}
 	
 	// Messages a specific person in the channel (Or server maybe) - Command.MSG
-	public void messageToChannel(String[] pinput){
+	public void privateMessage(String[] pinput, OutputStreamWriter outputWriter) throws IOException{
 		Log.i(TAG, "Command.MSG hit");
 		CommandUsed = true;
+		
+		StringBuilder temp = new StringBuilder();
+		for(int i = 2; i < pinput.length; ++i)
+			temp.append(pinput[i]);
+			
+		for(int i = 0 ; i < ServerUtility.clientList.size(); ++i){
+			if(pinput[1].equals(ServerUtility.clientList.get(i).nick)){
+				ServerUtility.clientList.get(i).outputWriter.write(nick + " says " + temp);
+				ServerUtility.clientList.get(i).outputWriter.flush();
+			}
+		}
 	}
 	
 	// init by command Commands.NICK - changes nickname of user
@@ -213,7 +248,11 @@ public class ServerThread extends Thread {
 		Log.i(TAG, "Command.NICK hit");
 		CommandUsed = true;
 		
+			
+		
+		
 		if(name != null){
+			swapChannelName(name);
 			nick = name;
 			outputWriter.write("Your nickname is now " + nick + "\n");
 		} else {
@@ -221,6 +260,16 @@ public class ServerThread extends Thread {
 		}
 		
 		outputWriter.flush();
+	}
+	
+	private void swapChannelName(String name){
+		if(channel != null){
+			for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+				if(channel.equals(ServerUtility.channelList.get(i).name)){
+					ServerUtility.channelList.get(i).removeUser(this, nick);
+					ServerUtility.channelList.get(i).addUser(this, name);		
+			}
+		}
 	}
 	
 	//gets the nickname of the person

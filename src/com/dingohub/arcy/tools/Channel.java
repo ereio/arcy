@@ -17,20 +17,19 @@ public class Channel {
 		this.name = name;
 	}
 	
-	public boolean addUser(String name){
+	public boolean addUser(ServerThread thread, String name){
 		for(String i : blackList){
 			if(i == name)
 				return false;
 		}
 		users.add(name);
+		userThreads.add(thread);
 		return true;
 	}
 	
-	public void removeUser(String name){
+	public void removeUser(ServerThread thread, String name){
 		users.remove(name);
+		userThreads.remove(thread);
 	}
 	
-	public void addThread(ServerThread thread){
-		userThreads.add(thread);
-	}
 }
