@@ -6,31 +6,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-        <EditText
-            android:id="@+id/editIP"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="text"
-            android:ems="10" >
-
-            <requestFocus />
-        </EditText>
-
-        <EditText
-            android:id="@+id/editPort"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/connectionButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="connectClick"
-        android:text="Connect" />
 
     <ScrollView
         android:id="@+id/scrollView1"
