@@ -215,6 +215,7 @@ public class ServerSetupActivity extends Activity{
 	
 	@Override
 	protected void onDestroy(){
+		super.onDestroy();
 		File dir = getFilesDir();
 		File log = new File(dir, SERVER_FILE);
 		if(log.delete())
