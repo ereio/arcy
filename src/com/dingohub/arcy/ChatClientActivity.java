@@ -1,12 +1,23 @@
 package com.dingohub.arcy;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,12 +27,21 @@ import com.dingohub.arcy.tools.ClientUtility;
 import com.dingohub.arcy.tools.SocketUtil;
 
 public class ChatClientActivity extends Activity{
+	private String TAG = "ChatClientActivity";
 	private boolean clientConnected;
 	EditText messageText;
+	EditText Ipedit ;
+	EditText portedit;
 	Button sendButton;
+	Button connectButton;
 	TextView logText;
 	
 	StringBuffer log;
+	String ipAddress;
+	String portText;
+	
+	private String CHAT_FILE = "chatClient.txt";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -33,11 +53,35 @@ public class ChatClientActivity extends Activity{
 		messageText = (EditText) findViewById(R.id.message);
 		sendButton = (Button) findViewById(R.id.sendButton);
 		logText = (TextView) findViewById(R.id.logText);
+		connectButton = (Button)findViewById(R.id.connectionButton);
 		
+		Ipedit = (EditText)findViewById(R.id.editIP);
+		portedit = (EditText)findViewById(R.id.editPort);
 		/**
 		 * If the user has input a message to be sent to the server 
 		 * and we are connected to the server then enable the send button
 		 */
+		
+		Intent i = getIntent();
+		Bundle bundle = i.getExtras();
+		
+		if(bundle!= null){
+			Ipedit.setText( bundle.getString("IP"))	;
+			portedit.setText( bundle.getString("port"));
+			connectButton.performClick();
+			
+		}
+		
+		sendButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				ClientUtility.sendMessageToServer(messageText.getText().toString());
+				messageText.setText("");
+				
+			}
+		});
+		
 		messageText.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
 				if (messageText.getText().toString().isEmpty()) {
@@ -62,9 +106,9 @@ public class ChatClientActivity extends Activity{
 	 */
 	public void connectClick(View view) {
 		// Read the IP Address and Port supplied by the user
-		String ipAddress = ((EditText) findViewById(R.id.editIP)).
+		ipAddress = ((EditText) findViewById(R.id.editIP)).
 				getText().toString();
-		String portText = ((EditText) findViewById(R.id.editPort)).
+		portText = ((EditText) findViewById(R.id.editPort)).
 				getText().toString();	
 		
 		// Ensure an IP address was specified
@@ -98,19 +142,12 @@ public class ChatClientActivity extends Activity{
 				sendButton.setEnabled(true);
 			
 			LogMessage("Connected to server @ " + ipAddress + ":" + portText);
-		
+			
 		// We are already connected and would like to disconnect from 
 		// the server
 		} else {
 			stopClient();
-			((Button) findViewById(R.id.connectionButton)).setText("Connect");
-			sendButton.setEnabled(false);
-			clientConnected = false;
 			
-			((EditText) findViewById(R.id.editIP)).setEnabled(true);
-			((EditText) findViewById(R.id.editPort)).setEnabled(true);
-	
-			LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
 		}
 	}
 	
@@ -126,9 +163,11 @@ public class ChatClientActivity extends Activity{
 		// This is not the best way to perform this test, however, it is 
 		// used just for this example to indicate that the test should be 
 		// performed
-		if (serverAddress == null || serverAddress.isEmpty()) 
+		if (serverAddress == null || serverAddress.isEmpty()){
 			Toast.makeText(this, "Client is not connected to a network", 
 					Toast.LENGTH_SHORT).show();
+			return;
+		}
 		
 		// Obtain a Runnable to be used for client socket initialization 
 		// and communication
@@ -165,8 +204,20 @@ public class ChatClientActivity extends Activity{
 	/**
 	 * Shut down communication with the server
 	 */
-	private void stopClient() {
-		ClientUtility.shutDownClient();
+	public void stopClient() {
+		runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+				((Button) findViewById(R.id.connectionButton)).setText("Connect");
+				sendButton.setEnabled(false);
+				clientConnected = false;
+				
+				((EditText) findViewById(R.id.editIP)).setEnabled(true);
+				((EditText) findViewById(R.id.editPort)).setEnabled(true);
+	
+				LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
+			}
+		});
 	}
 	
 	@Override
@@ -201,11 +252,44 @@ public class ChatClientActivity extends Activity{
 	@Override
     protected void onResume(){
 		super.onResume();
+		InputStream is;
+		StringBuilder text = new StringBuilder();
+		try {
+			is = openFileInput(CHAT_FILE);
+		
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader bufferedReader = new BufferedReader(isr);
+			
+			String line = new String();
+			while(((line = bufferedReader.readLine()) != null)){
+				text.append(line);
+				text.append('\n');
+			}
+			
+			bufferedReader.close();
+		} catch (IOException e) {
+			Log.e(TAG, "IO error occured upon retreival");
+			e.getStackTrace();
+		}
+		
+		logText.setText(text);
 	}
 
 	@Override
     protected void onPause(){
 		super.onPause();
+		
+		try {
+			FileOutputStream out = openFileOutput(CHAT_FILE, Context.MODE_PRIVATE);
+				
+			out.write(logText.getText().toString().getBytes());	
+			out.close(); 
+
+		}catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
