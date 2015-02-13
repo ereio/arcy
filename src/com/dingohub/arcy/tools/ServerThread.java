@@ -265,6 +265,7 @@ public class ServerThread extends Thread {
 		
 		//logs the list of everyone in the channel
 		outputWriter.write("You've joined: " + channel + "\n");
+	
 		
 		for(String i : channelUsers)
 			outputWriter.append(i + " ");

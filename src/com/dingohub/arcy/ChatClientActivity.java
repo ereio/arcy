@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.dingohub.arcy.tools.ClientUtility;
@@ -32,7 +34,7 @@ public class ChatClientActivity extends Activity{
 	private boolean clientConnected;
 	EditText messageText;
 
-	Button sendButton;
+	
 	
 	TextView logText;
 	//goes back to previous activity when  user quits
@@ -53,7 +55,7 @@ public class ChatClientActivity extends Activity{
 		clientConnected = false;
 		
 		messageText = (EditText) findViewById(R.id.message);
-		sendButton = (Button) findViewById(R.id.sendButton);
+
 		logText = (TextView) findViewById(R.id.logText);
 		
 		
@@ -75,33 +77,26 @@ public class ChatClientActivity extends Activity{
 		}
 		
 		
-		sendButton.setOnClickListener(new OnClickListener() {
+		
+		
+		
+		messageText.setOnEditorActionListener(new OnEditorActionListener() {
 			
 			@Override
-			public void onClick(View v) {
-				ClientUtility.sendMessageToServer(messageText.getText().toString());
-				messageText.setText("");
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
+				{
+					ClientUtility.sendMessageToServer(messageText.getText().toString());
+					messageText.setText("");
+					
+				}
 				
+				
+				return false;
 			}
 		});
 		
-		messageText.addTextChangedListener(new TextWatcher() {
-			public void afterTextChanged(Editable s) {
-				if (messageText.getText().toString().isEmpty()) {
-					sendButton.setEnabled(false);
-				} else if (clientConnected) {
-					sendButton.setEnabled(true);
-				} else {
-					sendButton.setEnabled(false);
-				}
-			}
-			
-			public void beforeTextChanged(CharSequence s, int start, 
-					int count, int after) {}
-			
-			public void onTextChanged(CharSequence s, int start, 
-					int before, int count) {}
-		});
+		
 	}
 
 	/**
@@ -137,8 +132,7 @@ public class ChatClientActivity extends Activity{
 			
 		
 			
-			if (!messageText.getText().toString().isEmpty())
-				sendButton.setEnabled(true);
+		
 			
 			LogMessage("Connected to server @ " + ipAddress + ":" + portText);
 			
@@ -210,7 +204,7 @@ public class ChatClientActivity extends Activity{
 		@Override
 		public void run() {
 				
-				sendButton.setEnabled(false);
+				
 				clientConnected = false;
 				
 				
