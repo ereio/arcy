@@ -93,7 +93,7 @@ public class ServerThread extends Thread {
 						quitConnection();
 					
 					if(pinput[0].equals(Commands.ME))
-						userAction(input);
+						userAction(pinput);
 					// Test if command is used, if not it will write
 					// if it is used it won't because commands write to output
 					if(!CommandUsed){
@@ -114,8 +114,13 @@ public class ServerThread extends Thread {
 	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
 	 */
 	
-	public void userAction(String input) throws IOException{
+	public void userAction(String[] pinput) throws IOException{
 		CommandUsed = true;
+		
+		StringBuilder temp = new StringBuilder();
+		for(int i = 1; i < pinput.length; ++i)
+			temp.append(pinput[i] + " ");
+		
 		if(channel != null){
 			ArrayList<ServerThread> userToMessage = new ArrayList<ServerThread>();
 			
@@ -130,12 +135,12 @@ public class ServerThread extends Thread {
 			
 			// Use the thread handles to send everyone messages from their threads
 			for(ServerThread i: userToMessage){
-				i.outputWriter.write(nick + input +"\n");
+				i.outputWriter.write(nick + " " + temp +"\n");
 				i.outputWriter.flush();
 			}
 		} else {
 			
-			outputWriter.write(nick + input +"\n");
+			outputWriter.write(nick + " " + temp +"\n");
 			outputWriter.flush();
 		}
 	}

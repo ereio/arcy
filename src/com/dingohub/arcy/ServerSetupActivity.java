@@ -38,6 +38,7 @@ public class ServerSetupActivity extends Activity{
 		logText = (TextView) findViewById(R.id.textLog);
 		
 		serverRunning = false;
+		
 	}
 	
 	/**
@@ -170,17 +171,18 @@ public class ServerSetupActivity extends Activity{
 		StringBuilder text = new StringBuilder();
 		try {
 			is = openFileInput(SERVER_FILE);
-		
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader bufferedReader = new BufferedReader(isr);
-			
-			String line = new String();
-			while(((line = bufferedReader.readLine()) != null)){
-				text.append(line);
-				text.append('\n');
-			}
-			
-			bufferedReader.close();
+			//if(is != null){
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader bufferedReader = new BufferedReader(isr);
+				
+				String line = new String();
+				while(((line = bufferedReader.readLine()) != null)){
+					text.append(line);
+					text.append('\n');
+				}
+				
+				bufferedReader.close();
+			//}
 		} catch (IOException e) {
 			Log.e(TAG, "IO error occured upon retreival");
 			e.getStackTrace();
@@ -216,11 +218,5 @@ public class ServerSetupActivity extends Activity{
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
-		File dir = getFilesDir();
-		File log = new File(dir, SERVER_FILE);
-		if(log.delete())
-			Log.i(TAG, "File deleted succesfully");
-		else
-			Log.e(TAG, "File not found or deleted");
 	}
 }
