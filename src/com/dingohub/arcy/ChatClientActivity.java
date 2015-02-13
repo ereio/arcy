@@ -1,10 +1,20 @@
 package com.dingohub.arcy;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +28,7 @@ import com.dingohub.arcy.tools.ClientUtility;
 import com.dingohub.arcy.tools.SocketUtil;
 
 public class ChatClientActivity extends Activity{
+	private String TAG = "ChatClientActivity";
 	private boolean clientConnected;
 	EditText messageText;
 
@@ -29,6 +40,8 @@ public class ChatClientActivity extends Activity{
 	
 	String ipAddress;
 	String portText;
+	
+	private String CHAT_FILE = "chatClient.txt";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
@@ -189,13 +202,22 @@ public class ChatClientActivity extends Activity{
 	/**
 	 * Shut down communication with the server
 	 */
-	private void stopClient() {
-		ClientUtility.shutDownClient();
-		
-		sendButton.setEnabled(false);
-		clientConnected = false;
-		
-		LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
+
+
+	public void stopClient() {
+		runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+				
+				sendButton.setEnabled(false);
+				clientConnected = false;
+				
+				;
+	
+				LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
+			}
+		});
+
 	}
 	
 	@Override
@@ -230,15 +252,59 @@ public class ChatClientActivity extends Activity{
 	@Override
     protected void onResume(){
 		super.onResume();
+		InputStream is;
+		StringBuilder text = new StringBuilder();
+		try {
+			is = openFileInput(CHAT_FILE);
+		
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader bufferedReader = new BufferedReader(isr);
+			
+			String line = new String();
+			while(((line = bufferedReader.readLine()) != null)){
+				text.append(line);
+				text.append('\n');
+			}
+			
+			bufferedReader.close();
+		} catch (IOException e) {
+			Log.e(TAG, "IO error occured upon retreival");
+			e.getStackTrace();
+		}
+		
+		logText.setText(text);
 	}
 
 	@Override
     protected void onPause(){
 		super.onPause();
+		
+		try {
+			FileOutputStream out = openFileOutput(CHAT_FILE, Context.MODE_PRIVATE);
+				
+			out.write(logText.getText().toString().getBytes());	
+			out.close(); 
+
+		}catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
     protected void onStop(){
 		super.onStop();
+	}
+	
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		File dir = getFilesDir();
+		File log = new File(dir, CHAT_FILE);
+		if(log.delete())
+			Log.i(TAG, "File deleted succesfully");
+		else
+			Log.e(TAG, "File not found or deleted");
 	}
 }

@@ -1,7 +1,17 @@
 package com.dingohub.arcy;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,10 +24,11 @@ import com.dingohub.arcy.tools.ServerUtility;
 import com.dingohub.arcy.tools.SocketUtil;
 
 public class ServerSetupActivity extends Activity{
-
+	private static final String TAG = "ServerSetupActivity";
 	private boolean serverRunning;
 	StringBuffer log;
 	TextView logText;
+	private String SERVER_FILE = "serverLog.txt";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -155,15 +166,61 @@ public class ServerSetupActivity extends Activity{
 	@Override
     protected void onResume(){
 		super.onResume();
+		InputStream is;
+		StringBuilder text = new StringBuilder();
+		try {
+			is = openFileInput(SERVER_FILE);
+		
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader bufferedReader = new BufferedReader(isr);
+			
+			String line = new String();
+			while(((line = bufferedReader.readLine()) != null)){
+				text.append(line);
+				text.append('\n');
+			}
+			
+			bufferedReader.close();
+		} catch (IOException e) {
+			Log.e(TAG, "IO error occured upon retreival");
+			e.getStackTrace();
+		}
+		
+		logText.setText(text);
 	}
 
 	@Override
     protected void onPause(){
 		super.onPause();
+		
+		try {
+			FileOutputStream out = openFileOutput(SERVER_FILE, Context.MODE_PRIVATE);
+				
+			out.write(logText.getText().toString().getBytes());	
+			out.close(); 
+
+		}catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
     protected void onStop(){
 		super.onStop();
+		
+
+	}
+	
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		File dir = getFilesDir();
+		File log = new File(dir, SERVER_FILE);
+		if(log.delete())
+			Log.i(TAG, "File deleted succesfully");
+		else
+			Log.e(TAG, "File not found or deleted");
 	}
 }

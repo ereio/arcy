@@ -28,6 +28,7 @@ public class ServerThread extends Thread {
 	public String channel = null;
 	public String address ="";
 	public String motd = "";
+	
 	public volatile OutputStreamWriter outputWriter = null;
 	boolean CommandUsed = false;
 	
@@ -79,7 +80,7 @@ public class ServerThread extends Thread {
 					
 					// Allows users to leave channels they've joined
 					if(pinput[0].equals(Commands.LEAVE))
-						unsubscribeToChannel(pinput[1], outputWriter);
+						unsubscribeToChannel(outputWriter);
 					
 					// Private messaging command
 					if(pinput[0].equals(Commands.MSG))
@@ -91,6 +92,8 @@ public class ServerThread extends Thread {
 					if(pinput[0].equals(Commands.QUIT))
 						quitConnection();
 					
+					if(pinput[0].equals(Commands.ME))
+						userAction(input);
 					// Test if command is used, if not it will write
 					// if it is used it won't because commands write to output
 					if(!CommandUsed){
@@ -111,10 +114,36 @@ public class ServerThread extends Thread {
 	 * FOLLOWING COMMANDS REQUEST OPERATIONS BACK TO SERVER THREAD 
 	 */
 	
+	public void userAction(String input) throws IOException{
+		CommandUsed = true;
+		if(channel != null){
+			ArrayList<ServerThread> userToMessage = new ArrayList<ServerThread>();
+			
+			// Finds the channel object in case more people added the channel
+			// or state of channel changes
+			// might be able to just keep a handle using array index but don't
+			// know how safe that is
+			// probably should use a map and not array
+			for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+				if(channel.equals(ServerUtility.channelList.get(i).name))
+					userToMessage = ServerUtility.channelList.get(i).userThreads;
+			
+			// Use the thread handles to send everyone messages from their threads
+			for(ServerThread i: userToMessage){
+				i.outputWriter.write(nick + input +"\n");
+				i.outputWriter.flush();
+			}
+		} else {
+			
+			outputWriter.write(nick + input +"\n");
+			outputWriter.flush();
+		}
+	}
+	
 	public void quitConnection(){
 		try {
-			unsubscribeToChannel(channel, outputWriter);
-			outputWriter.write("Disconnecting from Server...");
+			unsubscribeToChannel(outputWriter);
+			outputWriter.write("Disconnecting from Server...\n");
 			outputWriter.flush();
 			outputWriter.write("DISCONNECT");
 			outputWriter.flush();
@@ -130,20 +159,26 @@ public class ServerThread extends Thread {
 	}
 	
 	public void listChannelUsers(OutputStreamWriter outputWriter) throws IOException{
-		StringBuilder listingUsers = new StringBuilder();
-		ArrayList<String> userArray = new ArrayList<String>();
+		CommandUsed = true;
 		
-		for(int i = 0; i < ServerUtility.channelList.size(); ++i)
-			if(channel.equals(ServerUtility.channelList.get(i).name))
-				userArray = ServerUtility.channelList.get(i).users;
-		
-		for(String i : userArray)
-			listingUsers.append(i + " ");
-		
-		outputWriter.write("Users in " + channel + " are " + listingUsers.toString());
-		outputWriter.flush();
-	}
-	
+		if(channel != null){
+			StringBuilder listingUsers = new StringBuilder();
+			ArrayList<String> userArray = new ArrayList<String>();
+			
+			for(int i = 0; i < ServerUtility.channelList.size(); ++i)
+				if(channel.equals(ServerUtility.channelList.get(i).name))
+					userArray = ServerUtility.channelList.get(i).users;
+			
+			for(String i : userArray)
+				listingUsers.append(i + " ");
+			
+			outputWriter.write("Users in " + channel + " are " + listingUsers.toString() + "\n");
+			outputWriter.flush();
+		} else {
+			outputWriter.write("You're in the Lobby\n" + "Users online:" + Integer.toString(ServerUtility.clientList.size()) + "\n");
+			outputWriter.flush();
+		}
+	}	
 	
 	// Default when no command is used
 	public void postInChannel(String input, OutputStreamWriter outputWriter) throws IOException{
@@ -171,7 +206,7 @@ public class ServerThread extends Thread {
 	}
 	
 	// Unsubscribes users to the channel - Command.LEAVE
-	public void unsubscribeToChannel(String pinput, OutputStreamWriter outputWriter){
+	public void unsubscribeToChannel(OutputStreamWriter outputWriter) throws IOException{
 		Log.i(TAG, "Command.LEAVE hit");
 		CommandUsed = true;
 		
@@ -180,6 +215,13 @@ public class ServerThread extends Thread {
 				if(channel.equals(ServerUtility.channelList.get(i).name)){
 					ServerUtility.channelList.get(i).removeUser(this, nick);
 				}
+			
+			outputWriter.write("You've left the channel " + channel + "\n");
+			outputWriter.flush();
+			channel = null;
+		} else {
+			outputWriter.write("You're in the Lobby\n" + "Users online:" + Integer.toString(ServerUtility.clientList.size()) + "\n");
+			outputWriter.flush();
 		}
 	}
 	
@@ -243,6 +285,9 @@ public class ServerThread extends Thread {
 				ServerUtility.clientList.get(i).outputWriter.flush();
 			}
 		}
+		
+		outputWriter.write(nick + " says " + temp + "\n");
+		outputWriter.flush();
 	}
 	
 	// init by command Commands.NICK - changes nickname of user
