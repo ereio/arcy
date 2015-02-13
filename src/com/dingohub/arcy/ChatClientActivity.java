@@ -307,7 +307,7 @@ public class ChatClientActivity extends Activity{
 	
 	@Override
 	protected void onDestroy(){
-	//	super.onDestroy();
+		super.onDestroy();
 	//	File dir = getFilesDir();
 	//	File log = new File(dir, CHAT_FILE);
 	//	if(log.delete())
