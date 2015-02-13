@@ -1,6 +1,7 @@
 package com.dingohub.arcy;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -295,5 +296,15 @@ public class ChatClientActivity extends Activity{
 	@Override
     protected void onStop(){
 		super.onStop();
+	}
+	
+	@Override
+	protected void onDestroy(){
+		File dir = getFilesDir();
+		File log = new File(dir, CHAT_FILE);
+		if(log.delete())
+			Log.i(TAG, "File deleted succesfully");
+		else
+			Log.e(TAG, "File not found or deleted");
 	}
 }

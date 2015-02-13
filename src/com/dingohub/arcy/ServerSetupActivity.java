@@ -1,6 +1,7 @@
 package com.dingohub.arcy;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -208,5 +209,17 @@ public class ServerSetupActivity extends Activity{
 	@Override
     protected void onStop(){
 		super.onStop();
+		
+
+	}
+	
+	@Override
+	protected void onDestroy(){
+		File dir = getFilesDir();
+		File log = new File(dir, SERVER_FILE);
+		if(log.delete())
+			Log.i(TAG, "File deleted succesfully");
+		else
+			Log.e(TAG, "File not found or deleted");
 	}
 }
