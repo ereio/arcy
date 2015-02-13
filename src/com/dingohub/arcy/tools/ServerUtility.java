@@ -28,7 +28,8 @@ public class ServerUtility{
 			+ "/msg <nick_name> <message>\n"
 			+ "/nick <new_nick_name>\n" 
 			+ "/me <message_of_action>\n"
-			+ "/leave \n";
+			+ "/leave \n"
+			+ "/quit \n";
 	
 	
 	
