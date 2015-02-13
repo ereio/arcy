@@ -35,7 +35,8 @@ public class ChatClientActivity extends Activity{
 	Button sendButton;
 	
 	TextView logText;
-	
+	//goes back to previous activity when  user quits
+	Intent quit;
 	StringBuffer log;
 	
 	String ipAddress;
@@ -212,9 +213,13 @@ public class ChatClientActivity extends Activity{
 				sendButton.setEnabled(false);
 				clientConnected = false;
 				
-				;
+				
 	
 				LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
+				quit = new Intent(getApplicationContext(),MainActivity.class);
+				startActivity(quit);
+				finish();
+				
 			}
 		});
 
