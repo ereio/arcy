@@ -31,13 +31,13 @@ public class ChatClientActivity extends Activity{
 	private String TAG = "ChatClientActivity";
 	private boolean clientConnected;
 	EditText messageText;
-	EditText Ipedit ;
-	EditText portedit;
+
 	Button sendButton;
-	Button connectButton;
+	
 	TextView logText;
 	
 	StringBuffer log;
+	
 	String ipAddress;
 	String portText;
 	
@@ -54,10 +54,9 @@ public class ChatClientActivity extends Activity{
 		messageText = (EditText) findViewById(R.id.message);
 		sendButton = (Button) findViewById(R.id.sendButton);
 		logText = (TextView) findViewById(R.id.logText);
-		connectButton = (Button)findViewById(R.id.connectionButton);
 		
-		Ipedit = (EditText)findViewById(R.id.editIP);
-		portedit = (EditText)findViewById(R.id.editPort);
+		
+		
 		/**
 		 * If the user has input a message to be sent to the server 
 		 * and we are connected to the server then enable the send button
@@ -67,11 +66,13 @@ public class ChatClientActivity extends Activity{
 		Bundle bundle = i.getExtras();
 		
 		if(bundle!= null){
-			Ipedit.setText( bundle.getString("IP"))	;
-			portedit.setText( bundle.getString("port"));
-			connectButton.performClick();
+			portText =  bundle.getString("port")	;
+			ipAddress = bundle.getString("IP");
+			// connects to the server
+			connectClick();
 			
 		}
+		
 		
 		sendButton.setOnClickListener(new OnClickListener() {
 			
@@ -105,12 +106,9 @@ public class ChatClientActivity extends Activity{
 	/**
 	 * Handles the onClick event of the Connect button
 	 */
-	public void connectClick(View view) {
+	public void connectClick() {
 		// Read the IP Address and Port supplied by the user
-		ipAddress = ((EditText) findViewById(R.id.editIP)).
-				getText().toString();
-		portText = ((EditText) findViewById(R.id.editPort)).
-				getText().toString();	
+		
 		
 		// Ensure an IP address was specified
 		if (ipAddress == null || ipAddress.isEmpty()) {
@@ -133,11 +131,10 @@ public class ChatClientActivity extends Activity{
 		// We are connecting to a server
 		if (!clientConnected) {
 			connectToServer(ipAddress, port);
-			((Button) findViewById(R.id.connectionButton)).setText("Disconnect");
+			
 			clientConnected = true;
 			
-			((EditText) findViewById(R.id.editIP)).setEnabled(false);
-			((EditText) findViewById(R.id.editPort)).setEnabled(false);
+		
 			
 			if (!messageText.getText().toString().isEmpty())
 				sendButton.setEnabled(true);
@@ -205,20 +202,22 @@ public class ChatClientActivity extends Activity{
 	/**
 	 * Shut down communication with the server
 	 */
+
+
 	public void stopClient() {
 		runOnUiThread(new Runnable() {
 		@Override
 		public void run() {
-				((Button) findViewById(R.id.connectionButton)).setText("Connect");
+				
 				sendButton.setEnabled(false);
 				clientConnected = false;
 				
-				((EditText) findViewById(R.id.editIP)).setEnabled(true);
-				((EditText) findViewById(R.id.editPort)).setEnabled(true);
+				;
 	
 				LogMessage("Disconnected from server @ " + ipAddress + ":" + portText);
 			}
 		});
+
 	}
 	
 	@Override
