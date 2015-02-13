@@ -258,16 +258,19 @@ public class ChatClientActivity extends Activity{
 		try {
 			is = openFileInput(CHAT_FILE);
 		
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader bufferedReader = new BufferedReader(isr);
-			
-			String line = new String();
-			while(((line = bufferedReader.readLine()) != null)){
-				text.append(line);
-				text.append('\n');
+			if(is != null){
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader bufferedReader = new BufferedReader(isr);
+				
+				String line = new String();
+				while(((line = bufferedReader.readLine()) != null)){
+					text.append(line);
+					text.append('\n');
+				}
+				
+				bufferedReader.close();
 			}
 			
-			bufferedReader.close();
 		} catch (IOException e) {
 			Log.e(TAG, "IO error occured upon retreival");
 			e.getStackTrace();
@@ -300,12 +303,12 @@ public class ChatClientActivity extends Activity{
 	
 	@Override
 	protected void onDestroy(){
-		super.onDestroy();
-		File dir = getFilesDir();
-		File log = new File(dir, CHAT_FILE);
-		if(log.delete())
-			Log.i(TAG, "File deleted succesfully");
-		else
-			Log.e(TAG, "File not found or deleted");
+	//	super.onDestroy();
+	//	File dir = getFilesDir();
+	//	File log = new File(dir, CHAT_FILE);
+	//	if(log.delete())
+	//		Log.i(TAG, "File deleted succesfully");
+	//	else
+	//		Log.e(TAG, "File not found or deleted");
 	}
 }
